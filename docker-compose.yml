@@ -1,0 +1,24 @@
+services:
+  jekyll:
+    build:
+      context: .
+      network: host          # build (bundle install) needs host net to reach rubygems.org
+    container_name: jekyll-sp
+    # Host networking: the bridge can't reach this machine's DNS (192.168.122.1),
+    # so we bind directly to the host. Ports 14000 (site) + 35729 (livereload)
+    # are published automatically — no `ports:` mapping needed.
+    network_mode: host
+    volumes:
+      - .:/site                        # mount this repo into the container
+      - bundle_cache:/usr/local/bundle # persist installed gems across rebuilds
+    command: >
+      bundle exec jekyll serve
+      --host 0.0.0.0
+      --port 14000
+      --livereload
+      --livereload-port 35729
+      --force_polling
+      --incremental
+
+volumes:
+  bundle_cache:
